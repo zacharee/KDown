@@ -111,7 +111,7 @@ private class RecordingTask(
   private val removeCalls: MutableList<Boolean>,
 ) : DownloadTask {
   override val taskId: String get() = delegate.taskId
-  override val request: DownloadRequest get() = delegate.request
+  override val request: StateFlow<DownloadRequest> get() = delegate.request
   override val createdAt = delegate.createdAt
   override val state: StateFlow<DownloadState> get() = delegate.state
   override val segments: StateFlow<List<Segment>> get() = delegate.segments
@@ -133,5 +133,8 @@ private class RecordingTask(
   override suspend fun remove(deleteFiles: Boolean) {
     removeCalls.add(deleteFiles)
     delegate.remove(deleteFiles)
+  }
+  override suspend fun updateHeaders(newHeaders: Map<String, String>) {
+    delegate.updateHeaders(newHeaders)
   }
 }

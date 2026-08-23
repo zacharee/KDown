@@ -110,39 +110,39 @@ internal class DownloadExecution(
   }
 
   private suspend fun executeFresh() {
-    val resolved = request.resolvedSource
+    val resolved = request.value.resolvedSource
     val source: DownloadSource
     val resolvedUrl: ResolvedSource
 
     if (resolved != null) {
       log.d {
-        "Using pre-resolved info for ${request.url} " +
+        "Using pre-resolved info for ${request.value.url} " +
           "(source=${resolved.sourceType})"
       }
       source = sourceResolver.resolveByType(resolved.sourceType)
       resolvedUrl = resolved
     } else {
-      source = sourceResolver.resolve(request.url)
-      log.d { "Resolved source '${source.type}' for ${request.url}" }
-      resolvedUrl = source.resolve(request.url, request.headers)
+      source = sourceResolver.resolve(request.value.url)
+      log.d { "Resolved source '${source.type}' for ${request.value.url}" }
+      resolvedUrl = source.resolve(request.value.url, request.value.headers)
     }
 
     val total = resolvedUrl.totalBytes
     if (total < 0) {
-      log.e { "Unknown file size for ${request.url}" }
+      log.e { "Unknown file size for ${request.value.url}" }
       throw KetchError.SourceError(
         sourceType = source.type,
         cause = Exception(
-          "Unknown file size for ${request.url}"
+          "Unknown file size for ${request.value.url}"
         ),
       )
     }
     totalBytes = total
 
     val fileName = resolvedUrl.suggestedFileName
-      ?: fileNameResolver.resolve(request, resolvedUrl)
+      ?: fileNameResolver.resolve(request.value, resolvedUrl)
     val outputPath = resolveDestPath(
-      destination = request.destination,
+      destination = request.value.destination,
       defaultDir = config.defaultDirectory ?: "downloads",
       serverFileName = fileName,
       deduplicate = true,
@@ -168,7 +168,7 @@ internal class DownloadExecution(
       )
     }
 
-    taskLimiter.delegate = createLimiter(request.speedLimit)
+    taskLimiter.delegate = createLimiter(request.value.speedLimit)
 
     val preResolved = if (resolved != null) resolvedUrl else null
     runDownload(outputPath, total, source, preResolved) { ctx ->
@@ -435,8 +435,8 @@ internal class DownloadExecution(
     var speed = 0L
     return DownloadContext(
       taskId = taskId,
-      url = request.url,
-      request = request,
+      url = request.value.url,
+      request = request.value,
       fileAccessor = fileAccessor,
       segments = handle.mutableSegments,
       onProgress = { downloaded, total ->
@@ -456,10 +456,10 @@ internal class DownloadExecution(
         taskLimiter.acquire(bytes)
         globalLimiter.acquire(bytes)
       },
-      headers = request.headers,
+      headers = request.value.headers,
       preResolved = preResolved,
       maxConnections = MutableStateFlow(
-        request.connections.takeIf { it > 0 } ?: 0,
+        request.value.connections.takeIf { it > 0 } ?: 0,
       ),
     )
   }

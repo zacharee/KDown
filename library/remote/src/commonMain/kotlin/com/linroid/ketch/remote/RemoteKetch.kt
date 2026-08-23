@@ -282,7 +282,7 @@ class RemoteKetch(
   private fun createRemoteTask(wire: TaskSnapshot): RemoteDownloadTask {
     return RemoteDownloadTask(
       taskId = wire.taskId,
-      request = wire.request,
+      initialRequest = wire.request,
       createdAt = wire.createdAt,
       initialState = wire.state,
       initialSegments = wire.segments,

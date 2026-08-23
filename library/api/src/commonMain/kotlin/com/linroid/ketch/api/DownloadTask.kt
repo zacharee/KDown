@@ -15,7 +15,7 @@ import kotlin.time.Instant
  */
 interface DownloadTask {
   val taskId: String
-  val request: DownloadRequest
+  val request: StateFlow<DownloadRequest>
   val createdAt: Instant
   val state: StateFlow<DownloadState>
   val segments: StateFlow<List<Segment>>
@@ -32,6 +32,8 @@ interface DownloadTask {
    *   can change even when it points to the same file.
    */
   suspend fun resume(destination: Destination? = null)
+
+  suspend fun updateHeaders(newHeaders: Map<String, String>)
 
   /** Cancels the download. This is a terminal action. */
   suspend fun cancel()

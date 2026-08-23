@@ -46,12 +46,12 @@ internal class DownloadQueue(
     preferResume: Boolean = false,
   ) {
     mutex.withLock {
-      val host = extractHost(handle.request.url)
+      val host = extractHost(handle.request.value.url)
       val hostCount = hostConnectionCount.getOrElse(host) { 0 }
 
       val entry = QueueEntry(
         handle = handle,
-        priority = handle.request.priority,
+        priority = handle.request.value.priority,
         preempted = preferResume,
       )
 
@@ -64,14 +64,14 @@ internal class DownloadQueue(
             "$maxConcurrent"
         }
         startTask(entry, host)
-      } else if (handle.request.priority == DownloadPriority.URGENT) {
+      } else if (handle.request.value.priority == DownloadPriority.URGENT) {
         tryPreemptAndStart(entry, host)
       } else {
         insertSorted(entry)
         handle.mutableState.value = DownloadState.Queued
         log.i {
           "Download queued: taskId=${entry.taskId}, " +
-            "priority=${handle.request.priority}, " +
+            "priority=${handle.request.value.priority}, " +
             "position=${
               queuedEntries.indexOfFirst {
                 it.taskId == entry.taskId
@@ -258,7 +258,7 @@ internal class DownloadQueue(
     while (activeEntries.size < maxConcurrent) {
       val entry = findNextEligible() ?: break
       queuedEntries.remove(entry)
-      val host = extractHost(entry.handle.request.url)
+      val host = extractHost(entry.handle.request.value.url)
       log.i {
         "Promoting queued task: taskId=${entry.taskId}, " +
           "priority=${entry.priority}, " +
@@ -271,7 +271,7 @@ internal class DownloadQueue(
 
   private fun findNextEligible(): QueueEntry? {
     for (entry in queuedEntries) {
-      val host = extractHost(entry.handle.request.url)
+      val host = extractHost(entry.handle.request.value.url)
       val hostCount = hostConnectionCount.getOrElse(host) { 0 }
       if (hostCount < maxPerHost) {
         return entry

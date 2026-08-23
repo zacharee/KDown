@@ -28,7 +28,7 @@ internal class ContentUriFileAccessor(
   private val log = KetchLogger("FileAccessor")
   private val dispatcher = dispatcher.limitedParallelism(1)
 
-  private val pfd = context.contentResolver.openFileDescriptor(uri, "rw")
+  private val pfd = context.contentResolver.openFileDescriptor(uri, "rwa")
   private val fileDescriptor = pfd?.fileDescriptor
     ?: throw IOException(
       "Failed to open file descriptor for Uri=$uri; " +
@@ -85,6 +85,6 @@ internal class ContentUriFileAccessor(
   override suspend fun preallocate(size: Long) {
     if (size <= 0) return
     log.d { "Preallocating $size bytes for uri: $uri" }
-    writeAt(size - 1, byteArrayOf(0))
+    // writeAt(size - 1, byteArrayOf(0))
   }
 }

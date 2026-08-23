@@ -15,6 +15,7 @@ import com.linroid.ketch.endpoints.model.ConnectionsRequest
 import com.linroid.ketch.endpoints.model.PriorityRequest
 import com.linroid.ketch.endpoints.model.SpeedLimitRequest
 import com.linroid.ketch.endpoints.model.TaskSnapshot
+import com.linroid.ketch.endpoints.model.UpdateHeadersRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.resources.delete
@@ -32,7 +33,7 @@ import kotlin.time.Instant
 
 internal class RemoteDownloadTask(
   override val taskId: String,
-  override val request: DownloadRequest,
+  initialRequest: DownloadRequest,
   override val createdAt: Instant,
   initialState: DownloadState,
   initialSegments: List<Segment>,
@@ -47,6 +48,9 @@ internal class RemoteDownloadTask(
   private val _segments = MutableStateFlow(initialSegments)
   override val segments: StateFlow<List<Segment>> =
     _segments.asStateFlow()
+
+  private val _request = MutableStateFlow(initialRequest)
+  override val request: StateFlow<DownloadRequest> = _request.asStateFlow()
 
   internal fun updateState(newState: DownloadState) {
     log.d { "State update for taskId=$taskId: $newState" }
@@ -134,6 +138,17 @@ internal class RemoteDownloadTask(
     throw UnsupportedOperationException(
       "Rescheduling is not supported for remote tasks",
     )
+  }
+
+  override suspend fun updateHeaders(newHeaders: Map<String, String>) {
+    val response = httpClient.put(
+      Api.Tasks.ById.SpeedLimit(parent = byId),
+    ) {
+      contentType(ContentType.Application.Json)
+      setBody(UpdateHeadersRequest(newHeaders))
+    }
+    checkSuccess(response)
+    update(response.body())
   }
 
   private fun update(response: TaskSnapshot) {

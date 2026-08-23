@@ -70,7 +70,7 @@ cli/          # JVM CLI entry point
 - `com.linroid.ketch.endpoints` -- `Api` (Ktor `@Resource` definitions for REST API)
 - `com.linroid.ketch.endpoints.model` -- `TaskSnapshot`, `TasksResponse`, `TaskEvent`,
   `TaskEventType`, `ErrorResponse`, `ResolveUrlRequest`, `SpeedLimitRequest`,
-  `PriorityRequest`, `ConnectionsRequest`
+  `PriorityRequest`, `ConnectionsRequest`, `UpdateHeadersRequest`
 
 ### `config`
 - `com.linroid.ketch.config` -- `KetchConfig`, `ConfigStore`, `FileConfigStore`,

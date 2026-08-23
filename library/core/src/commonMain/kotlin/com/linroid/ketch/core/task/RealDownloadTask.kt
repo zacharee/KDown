@@ -17,7 +17,7 @@ import kotlin.time.Instant
 
 internal class RealDownloadTask(
   override val taskId: String,
-  override val request: DownloadRequest,
+  initialRequest: DownloadRequest,
   override val createdAt: Instant,
   initialState: DownloadState,
   initialSegments: List<Segment>,
@@ -27,9 +27,11 @@ internal class RealDownloadTask(
 ) : DownloadTask, TaskHandle {
   override val mutableState = MutableStateFlow(initialState)
   override val mutableSegments = MutableStateFlow(initialSegments)
+  override val mutableRequest = MutableStateFlow(initialRequest)
 
   override val state: StateFlow<DownloadState> = mutableState.asStateFlow()
   override val segments: StateFlow<List<Segment>> = mutableSegments.asStateFlow()
+  override val request: StateFlow<DownloadRequest> = mutableRequest.asStateFlow()
 
   override val record = AtomicSaver(record) { taskStore.save(it) }
 
@@ -50,6 +52,12 @@ internal class RealDownloadTask(
     } else {
       log.w { "Ignoring resume for taskId=$taskId in state $s" }
     }
+  }
+
+  override suspend fun updateHeaders(newHeaders: Map<String, String>) {
+    mutableRequest.value = mutableRequest.value.copy(
+      headers = newHeaders,
+    )
   }
 
   override suspend fun cancel() {

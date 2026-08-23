@@ -327,7 +327,7 @@ class Ketch(
   private suspend fun createTaskFromRecord(record: TaskRecord): DownloadTask {
     val task = RealDownloadTask(
       taskId = record.taskId,
-      request = record.request,
+      initialRequest = record.request,
       createdAt = record.createdAt,
       initialState = mapRecordState(record),
       initialSegments = record.segments ?: emptyList(),

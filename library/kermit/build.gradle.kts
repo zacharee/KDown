@@ -38,8 +38,8 @@ kotlin {
   @OptIn(ExperimentalWasmDsl::class)
   wasmJs { browser() }
 
-  @OptIn(ExperimentalWasmDsl::class)
-  wasmWasi { nodejs() }
+  // @OptIn(ExperimentalWasmDsl::class)
+  // wasmWasi { nodejs() }
 
   sourceSets {
     commonMain.dependencies {

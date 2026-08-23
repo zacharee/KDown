@@ -82,6 +82,10 @@ class Api {
       @Serializable
       @Resource("connections")
       data class Connections(val parent: ById)
+
+      @Serializable
+      @Resource("update-headers")
+      data class UpdateHeaders(val parent: ById)
     }
   }
 

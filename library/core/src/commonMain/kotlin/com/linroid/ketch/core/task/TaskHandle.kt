@@ -4,6 +4,7 @@ import com.linroid.ketch.api.DownloadRequest
 import com.linroid.ketch.api.DownloadState
 import com.linroid.ketch.api.Segment
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.time.Instant
 
 /**
@@ -15,9 +16,10 @@ import kotlin.time.Instant
  */
 internal interface TaskHandle {
   val taskId: String
-  val request: DownloadRequest
+  val request: StateFlow<DownloadRequest>
   val createdAt: Instant
   val mutableState: MutableStateFlow<DownloadState>
   val mutableSegments: MutableStateFlow<List<Segment>>
+  val mutableRequest: MutableStateFlow<DownloadRequest>
   val record: AtomicSaver<TaskRecord>
 }

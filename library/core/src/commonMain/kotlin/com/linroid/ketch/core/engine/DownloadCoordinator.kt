@@ -45,7 +45,7 @@ internal class DownloadCoordinator(
 
   suspend fun start(handle: TaskHandle) {
     val taskId = handle.taskId
-    log.i { "Starting download: taskId=$taskId, url=${handle.request.url}" }
+    log.i { "Starting download: taskId=$taskId, url=${handle.request.value.url}" }
     handle.record.update {
       it.copy(state = TaskState.QUEUED, updatedAt = Clock.System.now())
     }
@@ -274,13 +274,13 @@ internal class DownloadCoordinator(
     }
     val ctx = DownloadContext(
       taskId = handle.taskId,
-      url = handle.request.url,
-      request = handle.request,
+      url = handle.request.value.url,
+      request = handle.request.value,
       fileAccessor = fa,
       segments = MutableStateFlow(handle.mutableSegments.value),
       onProgress = { _, _ -> },
       throttle = { _ -> },
-      headers = handle.request.headers,
+      headers = handle.request.value.headers,
     )
     try {
       source.cleanup(ctx, record.sourceResumeState)

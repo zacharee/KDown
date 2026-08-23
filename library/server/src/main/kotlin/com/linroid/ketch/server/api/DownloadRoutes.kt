@@ -10,6 +10,7 @@ import com.linroid.ketch.endpoints.model.ErrorResponse
 import com.linroid.ketch.endpoints.model.PriorityRequest
 import com.linroid.ketch.endpoints.model.SpeedLimitRequest
 import com.linroid.ketch.endpoints.model.TasksResponse
+import com.linroid.ketch.endpoints.model.UpdateHeadersRequest
 import com.linroid.ketch.server.TaskMapper
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -206,6 +207,26 @@ internal fun Route.downloadRoutes(ketch: KetchApi) {
     }
     task.setConnections(body.connections)
     log.d { "Connections set for taskId=$taskId: ${body.connections}" }
+    call.respond(TaskMapper.toSnapshot(task))
+  }
+
+  put<Api.Tasks.ById.UpdateHeaders> { resource ->
+    val taskId = resource.parent.id
+    log.d { "PUT /api/tasks/$taskId/update-headers" }
+    val task = ketch.tasks.value.find {
+      it.taskId == taskId
+    }
+    if (task == null) {
+      log.w { "Task not found: taskId=$taskId" }
+      call.respond(
+        HttpStatusCode.NotFound,
+        ErrorResponse("not_found", "Task not found: $taskId"),
+      )
+      return@put
+    }
+    val body = call.receive<UpdateHeadersRequest>()
+    task.updateHeaders(body.newHeaders)
+    log.d { "Headers set for taskId=$taskId: ${body.newHeaders}" }
     call.respond(TaskMapper.toSnapshot(task))
   }
 }

@@ -25,8 +25,8 @@ internal class DownloadScheduler(
 
   suspend fun schedule(handle: TaskHandle) {
     val taskId = handle.taskId
-    val schedule = handle.request.schedule
-    val conditions = handle.request.conditions
+    val schedule = handle.request.value.schedule
+    val conditions = handle.request.value.conditions
 
     handle.mutableState.value = DownloadState.Scheduled(schedule)
     log.i {

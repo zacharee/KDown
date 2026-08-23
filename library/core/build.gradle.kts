@@ -45,10 +45,10 @@ kotlin {
     nodejs()
   }
 
-  @OptIn(ExperimentalWasmDsl::class)
-  wasmWasi {
-    nodejs()
-  }
+  // @OptIn(ExperimentalWasmDsl::class)
+  // wasmWasi {
+  //   nodejs()
+  // }
 
   sourceSets {
     commonMain.dependencies {
@@ -68,9 +68,9 @@ kotlin {
     jsMain.dependencies {
       implementation(libs.okio.nodefilesystem)
     }
-    wasmWasiMain.dependencies {
-      implementation(libs.okio.wasifilesystem)
-    }
+    // wasmWasiMain.dependencies {
+    //   implementation(libs.okio.wasifilesystem)
+    // }
   }
 }
 
